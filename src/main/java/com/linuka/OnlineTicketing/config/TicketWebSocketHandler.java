@@ -1,4 +1,5 @@
 package com.linuka.OnlineTicketing.config;
+
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
@@ -6,7 +7,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TicketWebSocketHandler extends TextWebSocketHandler {
-
     private int ticketPool = 100;  // Example starting ticket count
     private final ObjectMapper objectMapper = new ObjectMapper();
 

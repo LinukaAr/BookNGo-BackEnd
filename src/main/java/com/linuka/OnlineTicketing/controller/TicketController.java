@@ -14,18 +14,14 @@ public class TicketController {
         this.ticketService = ticketService;
     }
 
-    @PostMapping
-    public Ticket addTicket(@RequestBody Ticket ticket) {
-        return ticketService.addTicket(ticket);
+    @PostMapping("/add")
+    public String addTickets(@RequestParam int count, @RequestParam boolean isVIP) {
+        ticketService.addTickets(count, isVIP);
+        return count + " tickets added successfully";
     }
 
-    @GetMapping
-    public List<Ticket> getAllTickets() {
-        return ticketService.getAllTickets();
-    }
-
-    @PutMapping("/{id}/purchase")
-    public Ticket purchaseTicket(@PathVariable Long id) {
-        return ticketService.purchaseTicket(id);
+    @PostMapping("/purchase")
+    public Ticket purchaseTicket(@RequestParam boolean isVIP) {
+        return ticketService.purchaseTicket(isVIP);
     }
 }

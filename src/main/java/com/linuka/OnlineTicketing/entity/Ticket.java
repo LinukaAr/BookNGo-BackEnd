@@ -1,29 +1,19 @@
 package com.linuka.OnlineTicketing.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import lombok.*;
 @Entity
+@Getter
+@Setter
+
 public class Ticket {
-
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String status;
 
-    // getters and setters
-    public Long getId() {
-        return id;
-    }
+    private boolean isVIP;
+    private LocalDateTime createdTime;
+    private boolean isPurchased;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

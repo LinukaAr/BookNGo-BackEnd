@@ -1,16 +1,20 @@
 package com.linuka.OnlineTicketing;
 
-import java.net.URI;
 import java.util.Scanner;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import org.springframework.web.socket.WebSocketHandler;
 
 public class TicketingCLI {
 
-    private static final String WS_URI = "ws://localhost:8080/your-websocket-endpoint";
+    private static final String WS_URI = "ws://localhost:8080/ws/ticketing";
     private WebSocketSession session;
+    private int totalTickets;
+    private int ticketReleaseRate;
+    private int customerRetrievalRate;
+    private int maxTicketCapacity;
 
     public TicketingCLI() {
         try {
@@ -20,69 +24,73 @@ public class TicketingCLI {
         }
     }
 
+    private void configureSystem() {
+        Scanner scanner = new Scanner(System.in);
+        totalTickets = getValidInput(scanner, "Enter total tickets: ");
+        ticketReleaseRate = getValidInput(scanner, "Enter ticket release rate: ");
+        customerRetrievalRate = getValidInput(scanner, "Enter customer retrieval rate: ");
+        maxTicketCapacity = getValidInput(scanner, "Enter max ticket capacity: ");
+    }
+
+    private int getValidInput(Scanner scanner, String prompt) {
+        int input;
+        while (true) {
+            System.out.print(prompt);
+            if (scanner.hasNextInt()) {
+                input = scanner.nextInt();
+                if (input > 0) {
+                    break;
+                }
+            } else {
+                scanner.next(); // Clear invalid input
+            }
+            System.out.println("Invalid input. Please enter a positive integer.");
+        }
+        return input;
+    }
+
+    public void start() {
+        // Start ticket handling operations
+        System.out.println("Ticket handling operations started.");
+    }
+
+    public void stop() {
+        // Stop ticket handling operations
+        System.out.println("Ticket handling operations stopped.");
+    }
+
+    private void logTransaction(String message) {
+        System.out.println(message);
+        // Additional logging logic if needed
+    }
+
     private void connectToWebSocket() throws Exception {
         StandardWebSocketClient client = new StandardWebSocketClient();
-        session = client
-                .doHandshake(new TextWebSocketHandler() {
-                    @Override
-                    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-                        System.out.println("Received from server: " + message.getPayload());
-                    }
-                }, WS_URI)
-                .get();
-    }
+        WebSocketHandler handler = new TextWebSocketHandler() {
+            @Override
+            protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+                System.out.println("Received from server: " + message.getPayload());
+            }
 
-    public void sendMessage(String message) throws Exception {
-        if (session != null && session.isOpen()) {
-            session.sendMessage(new TextMessage(message));
-        } else {
-            System.out.println("WebSocket session is not open.");
-        }
-    }
+            @Override
+            public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+                System.out.println("WebSocket connection established.");
+                TicketingCLI.this.session = session;
+            }
 
-    public void closeConnection() throws Exception {
-        if (session != null) {
-            session.close();
-        }
+            @Override
+            public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+                System.err.println("WebSocket error: " + exception.getMessage());
+            }
+        };
+        client.doHandshake(handler, WS_URI);
     }
 
     public static void main(String[] args) {
         TicketingCLI cli = new TicketingCLI();
-        Scanner scanner = new Scanner(System.in);
-        boolean running = true;
-
-        while (running) {
-            System.out.println("Choose an option:");
-            System.out.println("1. Add tickets (Vendor)");
-            System.out.println("2. Purchase tickets (Customer)");
-            System.out.println("3. Exit");
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
-
-            try {
-                switch (choice) {
-                    case 1 -> {
-                        System.out.print("Enter number of tickets to add: ");
-                        int ticketsToAdd = scanner.nextInt();
-                        cli.sendMessage("{\"action\":\"add\",\"tickets\":" + ticketsToAdd + "}");
-                    }
-                    case 2 -> {
-                        System.out.print("Enter number of tickets to purchase: ");
-                        int ticketsToPurchase = scanner.nextInt();
-                        cli.sendMessage("{\"action\":\"purchase\",\"tickets\":" + ticketsToPurchase + "}");
-                    }
-                    case 3 -> {
-                        running = false;
-                        cli.closeConnection();
-                        System.out.println("Exiting...");
-                    }
-                    default -> System.out.println("Invalid choice, please try again.");
-                }
-            } catch (Exception e) {
-                System.err.println("Error: " + e.getMessage());
-            }
-        }
-
-        scanner.close();
+        cli.configureSystem();
+        cli.start();
+        // Main loop...
+        cli.stop();
     }
 }
