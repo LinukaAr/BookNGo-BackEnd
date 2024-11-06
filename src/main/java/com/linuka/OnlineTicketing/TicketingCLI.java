@@ -1,3 +1,5 @@
+package com.linuka.OnlineTicketing;
+
 import java.net.URI;
 import java.util.Scanner;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -26,7 +28,7 @@ public class TicketingCLI {
                     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
                         System.out.println("Received from server: " + message.getPayload());
                     }
-                }, URI.create(WS_URI))
+                }, WS_URI)
                 .get();
     }
 

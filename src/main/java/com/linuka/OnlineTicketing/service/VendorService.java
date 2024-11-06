@@ -1,7 +1,7 @@
-package com.example.ticketingsystem.service;
+package com.linuka.OnlineTicketing.service;
 
-import com.example.ticketingsystem.model.Vendor;
-import com.example.ticketingsystem.repository.VendorRepository;
+import com.linuka.OnlineTicketing.entity.Vendor;
+import com.linuka.OnlineTicketing.repository.VendorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

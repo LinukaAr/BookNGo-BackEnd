@@ -1,4 +1,5 @@
-package com.example.ticketingsystem.model;
+package com.linuka.OnlineTicketing.entity;
+
 
 import javax.persistence.*;
 

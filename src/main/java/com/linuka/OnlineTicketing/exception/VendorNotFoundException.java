@@ -1,4 +1,4 @@
-package com.example.ticketingsystem.exception;
+package com.linuka.OnlineTicketing.exception;
 
 public class VendorNotFoundException extends RuntimeException {
     public VendorNotFoundException(String message) {

@@ -1,15 +1,13 @@
-package com.example.ticketingsystem.controller;
+package com.linuka.OnlineTicketing.controller;
 
-import com.example.ticketingsystem.model.Ticket;
-import com.example.ticketingsystem.service.TicketService;
+import com.linuka.OnlineTicketing.entity.Ticket;
+import com.linuka.OnlineTicketing.service.TicketService;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketController {
-
     private final TicketService ticketService;
 
     public TicketController(TicketService ticketService) {

@@ -1,4 +1,4 @@
-package com.example.ticketingsystem.config;
+package com.linuka.OnlineTicketing.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;

@@ -1,13 +1,13 @@
-package com.example.ticketingsystem.service;
+package com.linuka.OnlineTicketing.service;
 
-import com.example.ticketingsystem.model.Ticket;
-import com.example.ticketingsystem.repository.TicketRepository;
+import com.linuka.OnlineTicketing.entity.Ticket;
+import com.linuka.OnlineTicketing.repository.TicketRepository;
 import org.springframework.stereotype.Service;
+import com.linuka.OnlineTicketing.exception.TicketNotFoundException;
 import java.util.List;
 
 @Service
 public class TicketService {
-
     private final TicketRepository ticketRepository;
 
     public TicketService(TicketRepository ticketRepository) {

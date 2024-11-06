@@ -1,7 +1,7 @@
-package com.example.ticketingsystem.controller;
+package com.linuka.OnlineTicketing.controller;
 
-import com.example.ticketingsystem.model.Vendor;
-import com.example.ticketingsystem.service.VendorService;
+import com.linuka.OnlineTicketing.entity.Vendor;
+import com.linuka.OnlineTicketing.service.VendorService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

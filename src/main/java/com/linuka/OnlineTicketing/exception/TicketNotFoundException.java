@@ -1,4 +1,4 @@
-package com.example.ticketingsystem.exception;
+package com.linuka.OnlineTicketing.exception;
 
 public class TicketNotFoundException extends RuntimeException {
     public TicketNotFoundException(String message) {

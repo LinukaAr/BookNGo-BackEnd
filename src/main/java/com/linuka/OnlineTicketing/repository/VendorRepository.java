@@ -1,7 +1,8 @@
-package com.example.ticketingsystem.repository;
+package com.linuka.OnlineTicketing.repository;
 
-import com.example.ticketingsystem.model.Vendor;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.linuka.OnlineTicketing.entity.Vendor;
 
 public interface VendorRepository extends JpaRepository<Vendor, Long> {
 }
