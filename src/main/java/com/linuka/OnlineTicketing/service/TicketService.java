@@ -3,7 +3,6 @@ package com.linuka.OnlineTicketing.service;
 import com.linuka.OnlineTicketing.entity.Ticket;
 import com.linuka.OnlineTicketing.repository.TicketRepository;
 import org.springframework.stereotype.Service;
-import com.linuka.OnlineTicketing.exception.TicketNotFoundException;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.util.concurrent.locks.ReentrantLock;
