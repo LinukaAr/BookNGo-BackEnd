@@ -3,7 +3,6 @@ package com.linuka.OnlineTicketing.controller;
 import com.linuka.OnlineTicketing.entity.Ticket;
 import com.linuka.OnlineTicketing.service.TicketService;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tickets")

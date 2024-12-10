@@ -20,7 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TicketWebSocketHandler extends TextWebSocketHandler implements TicketPool.TicketPoolListener {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-    private TicketPool ticketPool;
+    private final TicketPool ticketPool;
     private final ReentrantLock lock = new ReentrantLock();
     private int ticketReleaseRate;
     private int customerRetrievalRate;
@@ -54,46 +54,72 @@ public class TicketWebSocketHandler extends TextWebSocketHandler implements Tick
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws IOException {
-        JsonNode jsonMessage = objectMapper.readTree(message.getPayload());
-        String action = jsonMessage.get("action").asText();
+        try {
+            JsonNode jsonMessage = objectMapper.readTree(message.getPayload());
+            String action = jsonMessage.has("action") ? jsonMessage.get("action").asText() : null;
 
-        System.out.println("Received message: " + jsonMessage);
-        broadcast("Received message: " + jsonMessage);
+            if (action == null) {
+                session.sendMessage(new TextMessage("Error: 'action' field is missing"));
+                return;
+            }
 
-        if ("configure".equals(action)) {
-            int totalTickets = jsonMessage.get("totalTickets").asInt();
-            maxTicketCapacity = jsonMessage.get("maxTicketCapacity").asInt();
-            ticketReleaseRate = jsonMessage.get("ticketReleaseRate").asInt();
-            customerRetrievalRate = jsonMessage.get("customerRetrievalRate").asInt();
-
-            // *** CORRECTION:  Use the injected ticketPool, don't create a new one ***
-            ticketPool.setMaxTicketCapacity(maxTicketCapacity); // Update the capacity
-            ticketPool.initializeTickets(totalTickets);       // Initialize tickets
-
-
-            // ticketPool.setMaxTicketCapacity(maxTicketCapacity);
-            // ticketPool.addTickets(jsonMessage.get("ticketReleaseRate").asInt());
-            // ticketPool.removeTicket(jsonMessage.get("customerRetrievalRate").asInt());
-            // initializeVendorsAndCustomers();
-
-        } else if ("start".equals(action)) {
-            System.out.println("Start action received with configuration: " + jsonMessage);
-            broadcast("Start action received with configuration: " + jsonMessage);
-            initializeVendorsAndCustomers();
-        } else if ("stop".equals(action)) {
-            System.out.println("Stop action received");
-            broadcast("Stop action received");
-            stopVendorsAndCustomers();
-        } else if ("add".equals(action)) {
-            int tickets = jsonMessage.get("ticketReleaseRate").asInt();
-            ticketPool.addTickets(tickets);
-        } else if ("purchase".equals(action)) {
-            int tickets = jsonMessage.get("tickets").asInt();
-            ticketPool.removeTicket(tickets);
+            if ("configure".equals(action)) {
+                System.out.println("Configuration received: " + jsonMessage);
+                try {
+                    session.sendMessage(new TextMessage("{\"🛑Configuration Data Recieved\": " + jsonMessage + "}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                ticketReleaseRate = jsonMessage.get("ticketReleaseRate").asInt();
+                customerRetrievalRate = jsonMessage.get("customerRetrievalRate").asInt();
+                maxTicketCapacity = jsonMessage.get("maxTicketCapacity").asInt();
+                ticketPool.setMaxTicketCapacity(maxTicketCapacity);
+                ticketPool.addTickets(jsonMessage.get("totalTickets").asInt());
+            } else if ("start".equals(action)) {
+                System.out.println("Start action received with configuration: " + jsonMessage);
+                initializeVendorsAndCustomers(session);
+            } else if ("stop".equals(action)) {
+                System.out.println("Stop action received");
+                stopVendorsAndCustomers(session);
+            } else if ("add".equals(action)) {
+                int tickets = jsonMessage.get("tickets").asInt();
+                ticketPool.addTickets(tickets);
+                try {
+                    session.sendMessage(new TextMessage("{\"message\": \"Tickets Added\", \"count\": " + tickets + "}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if ("purchase".equals(action)) {
+                int tickets = jsonMessage.get("tickets").asInt();
+                for (int i = 0; i < tickets; i++) {
+                    ticketPool.removeTicket(1);
+                }
+                try {
+                    session.sendMessage(new TextMessage("{\"message\": \"Tickets Purchased\", \"count\": " + tickets + "}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    session.sendMessage(new TextMessage("{\"error\": \"Unknown action '" + action + "'\"}"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error handling message: " + e.getMessage());
+            session.sendMessage(new TextMessage("Error: " + e.getMessage()));
+            session.close(CloseStatus.SERVER_ERROR);
         }
     }
 
-    private void initializeVendorsAndCustomers() {
+    private void initializeVendorsAndCustomers(WebSocketSession session) {
+        try {
+            session.sendMessage(new TextMessage("{\"🛑systemStatus\": \"start\"}"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         Vendor[] vendors = new Vendor[10];
         vendorThreads = new Thread[10];
         for (int i = 0; i < 10; i++) {
@@ -111,12 +137,27 @@ public class TicketWebSocketHandler extends TextWebSocketHandler implements Tick
         }
     }
 
-    private void stopVendorsAndCustomers() {
-        for (Thread vendorThread : vendorThreads) {
-            vendorThread.interrupt();
+    private void stopVendorsAndCustomers(WebSocketSession session) {
+        try {
+            session.sendMessage(new TextMessage("{\"🛑systemStatus\": \"stop\"}"));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        for (Thread customerThread : customerThreads) {
-            customerThread.interrupt();
+
+        if (vendorThreads != null) {
+            for (Thread thread : vendorThreads) {
+                if (thread != null && thread.isAlive()) {
+                    thread.interrupt();
+                }
+            }
+        }
+
+        if (customerThreads != null) {
+            for (Thread thread : customerThreads) {
+                if (thread != null && thread.isAlive()) {
+                    thread.interrupt();
+                }
+            }
         }
     }
 
@@ -136,16 +177,6 @@ public class TicketWebSocketHandler extends TextWebSocketHandler implements Tick
             session.sendMessage(new TextMessage("{\"ticketCount\": " + ticketPool.getTicketCount() + "}"));
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public void broadcast(String message) {
-        for (WebSocketSession session : sessions) {
-            try {
-                session.sendMessage(new TextMessage(message));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }
