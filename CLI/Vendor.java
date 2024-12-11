@@ -1,9 +1,7 @@
-package com.linuka.OnlineTicketing.producerconsumer;
-
 import java.util.concurrent.locks.ReentrantLock;
 
 // This class represents a vendor that releases tickets to the ticket pool at a fixed rate.
-//runable class that will be used to create a thread for the vendor
+// Runnable class that will be used to create a thread for the vendor
 public class Vendor implements Runnable {
     private final TicketPool ticketPool;
     private final int ticketReleaseRate;
@@ -14,16 +12,15 @@ public class Vendor implements Runnable {
         this.ticketPool = ticketPool;
         this.ticketReleaseRate = ticketReleaseRate;
         this.lock = lock;
-        
     }
 
     @Override
-    //run method that will be called when the thread is started
+    // Run method that will be called when the thread is started
     public void run() {
-        while (!Thread.currentThread().isInterrupted()) {//while the thread is not interrupted
+        while (!Thread.currentThread().isInterrupted()) { // While the thread is not interrupted
             lock.lock();
             try {
-                ticketPool.addTickets(ticketReleaseRate);//add tickets to the ticket pool
+                ticketPool.addTickets(ticketReleaseRate); // Add tickets to the ticket pool
             } finally {
                 lock.unlock();
             }

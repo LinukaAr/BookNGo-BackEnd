@@ -13,15 +13,16 @@ public class WebSocketConfig implements WebSocketConfigurer {
     private final TicketWebSocketHandler ticketWebSocketHandler;
     private final LogWebSocketHandler logWebSocketHandler;
 
-
+    // Constructor for WebSocketConfig class
     public WebSocketConfig(TicketWebSocketHandler ticketWebSocketHandler, LogWebSocketHandler logWebSocketHandler) {
         this.ticketWebSocketHandler = ticketWebSocketHandler;
         this.logWebSocketHandler = logWebSocketHandler;
     }
 
     @Override
+    // Register WebSocket handlers
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(ticketWebSocketHandler, "/ws/ticketing").setAllowedOrigins("*");
-        registry.addHandler(logWebSocketHandler, "/logs").setAllowedOrigins("*");
+        registry.addHandler(ticketWebSocketHandler, "/ws/ticketing").setAllowedOrigins("*");// Register ticketWebSocketHandler
+        registry.addHandler(logWebSocketHandler, "/logs").setAllowedOrigins("*");// Register logWebSocketHandler
     }
 }
