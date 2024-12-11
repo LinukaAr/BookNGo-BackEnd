@@ -1,11 +1,9 @@
 package com.linuka.OnlineTicketing.producerconsumer;
 
 import com.linuka.OnlineTicketing.entity.Ticket;
-import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 public class TicketPool {
     private static final Logger logger = LogManager.getLogger(TicketPool.class);
@@ -52,6 +50,7 @@ public class TicketPool {
         }
         logger.info(count + " Ticket(s) purchased. Remaining tickets: " + tickets.size());
         System.out.println(count + " Ticket(s) purchased. Remaining tickets: " + tickets.size());
+        notifyListener();
     }
 
     public synchronized int getTicketCount() {
@@ -71,6 +70,7 @@ public class TicketPool {
             listener.onTicketCountChanged(tickets.size());
         }
     }
+
 
     public interface TicketPoolListener {
         void onTicketCountChanged(int newCount);

@@ -18,9 +18,8 @@ public class Customer implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             lock.lock();
             try {
-                for (int i = 0; i < customerRetrievalRate; i++) {
-                    ticketPool.removeTicket(1);
-                }
+                ticketPool.removeTicket(customerRetrievalRate);
+                System.out.println(Thread.currentThread().getName() + " purchased " + customerRetrievalRate + " tickets.");
             } finally {
                 lock.unlock();
             }

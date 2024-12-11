@@ -128,13 +128,14 @@ public class TicketWebSocketHandler extends TextWebSocketHandler implements Tick
             vendorThreads[i].start();
         }
 
-        Customer[] customers = new Customer[10];
-        customerThreads = new Thread[10];
-        for (int i = 0; i < 10; i++) {
+        Customer[] customers = new Customer[5];
+        customerThreads = new Thread[5];
+        for (int i = 0; i < 5; i++) {
             customers[i] = new Customer(ticketPool, customerRetrievalRate, lock);
             customerThreads[i] = new Thread(customers[i], "Customer-" + (i + 1));
             customerThreads[i].start();
         }
+
     }
 
     private void stopVendorsAndCustomers(WebSocketSession session) {
