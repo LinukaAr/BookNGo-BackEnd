@@ -1,0 +1,38 @@
+@startuml
+interface Runnable {
+    + void run(): void
+}
+
+class Customer implements Runnable {
+    - ticketPool : TicketPool
+    - customerRetrievalRate : int
+    - lock : ReentrantLock
+    - session : WebSocketSession
+    + Customer(TicketPool ticketPool, int customerRetrievalRate, ReentrantLock lock, WebSocketSession session): void
+    + Customer(TicketPool ticketPool, int customerRetrievalRate, ReentrantLock lock): void
+    + void run(): void
+}
+
+class TicketPool {
+    + void removeTicket(int rate): void
+}
+
+class ReentrantLock {
+    + void lock(): void
+    + void unlock(): void
+}
+
+class WebSocketSession {
+    + void sendMessage(TextMessage message): void throws IOException
+}
+
+class TextMessage {
+    + TextMessage(String payload): void
+}
+
+Customer --> TicketPool
+Customer --> ReentrantLock
+Customer --> WebSocketSession
+WebSocketSession --> TextMessage
+Customer ..|> Runnable
+@enduml
